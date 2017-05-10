@@ -1,7 +1,7 @@
 *************************************************************************************************************************************************************************
 This package contains the source code and dataset used in the following paper:
 
-"Yu Zhang, Lijia Zhang, Li Zhang and Xiangzhi Bai. Infrared and Visual Image Fusion through Infrared Feature Extraction and Visual Information Preservation, Infrared Physics & Technology (2017)"
+"Yu Zhang, Lijia Zhang, Xiangzhi Bai and Li Zhang. Infrared and Visual Image Fusion through Infrared Feature Extraction and Visual Information Preservation, Infrared Physics & Technology (2017)"
 
 
 Usage of this code is only free for research purposes. Please refer to the above publication if you use this code. 
