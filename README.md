@@ -1,4 +1,3 @@
-********************************************************************************
 ***
 ### Description
 This package contains the source code and dataset used in the following paper:
