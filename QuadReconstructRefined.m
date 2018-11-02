@@ -8,32 +8,30 @@ function bgImg = QuadReconstructRefined(S, img, minDim)
 
     % Matrix M
     M = [
-        1   0   0  0;
-       -3   3   0  0;
-        3  -6   3  0;
-       -1   3  -3  1
+        -1 3 -3 1; 
+       	3 -6 3 0;
+      	-3 3 0 0;
+    	1 0 0 0
         ];
 
-    MT = M'; % transform of matrix M
-
-    % preprocess S
+    % preprocess the obtained quadtree structure S
     newS = S + (S > 0);
 
-    % max level
+    % max level of the quadtree structure
     newS = full(newS);
     maxDim = max(newS(:));
     dim = maxDim;
 
-    % pad image
+    % pad image for the following computation
     newS = padarray(newS, [1 1], 'replicate', 'post');
     newImg = padarray(img, [1 1], 'replicate', 'post');
 
     % temporal reconstructed image
     tempReconstImg = zeros(size(newImg));
 
-    % Begin loop
+    % reconstruct background image from each scale blocks of the quadtree structure
     while (dim >= minDim + 1)
-
+        % block number of the current scale blocks
         len = length(find(newS == dim));
         if len ~= 0
             % Extrat the corresponding blocks at the current level
@@ -42,27 +40,30 @@ function bgImg = QuadReconstructRefined(S, img, minDim)
             % pixel locations
             subDim = (dim - 1) / 4;
             row = [1, subDim * 2, subDim * 3, subDim * 4 + 1];
-
+            
             xx = [row; row; row; row];
             yy = xx';
             inds = sub2ind([dim, dim], yy, xx);
 
             % generate u and v
-            u=linspace(0,1,dim); u = u(:); v = u;
-            U2 = [ones(dim, 1), u, u .^ 2, u .^3];
-            VT2 = [ones(dim, 1), v, v .^ 2, v .^3]';
+            u = ([1 : dim]' - 1) / (dim - 1);
+            U = [u.^3, u.^2, u, u.^0];  % V = U';
 
+            % precompute the left matrix(LM) U*M and right matrix(RM) M'V'
+            LM = U * M;
+            RM = M * U'; % M'=M and V = U
+            
             % reconstructed blocks
             reBlkSeq = zeros(dim, dim, len);
 
             for ii = 1 : len
                 blockVal = blks( : , : , ii);
                 blockVal = blockVal(inds);
-                reblkVal = U2 * M * blockVal * MT * VT2;
+                reblkVal = LM * blockVal * RM;
                 reBlkSeq(:,:,ii) = reblkVal;
             end
 
-            % Set the fusion tag as the image indices of the focused blocks
+            % Set the reconstructed blocks into tempReconstImg
             tempReconstImg = qtsetblk(tempReconstImg,newS,dim,reBlkSeq);
         end
         dim = (dim - 1) / 2 + 1;
